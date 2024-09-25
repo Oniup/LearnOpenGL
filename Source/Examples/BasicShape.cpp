@@ -1,8 +1,8 @@
 #define GLFW_INCLUDE_NONE
 
-#include "Console.h"
-#include "Input.h"
-#include "Window.h"
+#include "Common/Debug.h"
+#include "Common/Input.h"
+#include "Common/Window.h"
 #include <GLFW/glfw3.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
@@ -12,12 +12,8 @@
 
 int main()
 {
-    Console console;
     WindowHandle window;
     Input input;
-
-    console.Initialize();
-    console.AddOutput<ConsoleTerminalOutput>();
 
     WindowHandle::InitializeGLFW();
     window.Initialize("Learning OpenGL - BasicShape", -1, -1);
@@ -33,7 +29,6 @@ int main()
     path.make_preferred();
 
     io.Fonts->AddFontFromFileTTF(path.c_str(), 16.0f);
-
     ImGui::StyleColorsDark();
 
     ImGui_ImplGlfw_InitForOpenGL(window.WindowPtr, true);
@@ -58,7 +53,7 @@ int main()
         {
             ImGui::Begin("Test");
             if (ImGui::Button("Print message")) {
-                INFO("Printing message...");
+                Message("Printing message...");
             }
             ImGui::End();
         }
@@ -74,7 +69,6 @@ int main()
     ImGui::DestroyContext();
 
     window.Destroy();
-    console.Destroy();
 
     WindowHandle::DestroyGLFW();
 }

@@ -15,19 +15,21 @@
 
 #pragma once
 
-#include "InputKeyCodes.h"
-#include "Window.h"
+#include "Common/InputKeyCodes.h"
+#include "Common/Window.h"
 #include <array>
 #include <string_view>
 
-enum InputType {
+enum InputType
+{
     InputType_Unknown = -1,
     InputType_Keyboard,
     InputType_Mouse,
     InputType_GamePad,
 };
 
-enum MouseMode {
+enum MouseMode
+{
     MouseMode_Invalid = -1,
     MouseMode_Visable,
     MouseMode_Hidden,
@@ -35,14 +37,16 @@ enum MouseMode {
 
 };
 
-struct RegisteredInput {
+struct RegisteredInput
+{
     InputType Type      = InputType_Unknown;
     int Code            = -1;
     bool RemoveNextTick = false;
     bool Pressed        = false;
 };
 
-struct Input {
+struct Input
+{
     static constexpr size_t RegisterOnceBufferSize = 16;
 
     WindowHandle* WindowPtr = nullptr;

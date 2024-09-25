@@ -1,7 +1,7 @@
 ---
 # Core
 BasedOnStyle: LLVM
-BreakBeforeBraces: Stroustrup
+BreakBeforeBraces: Mozilla
 Standard: c++17
 UseTab: Never
 ColumnLimit: 99

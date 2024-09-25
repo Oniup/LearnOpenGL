@@ -1,14 +1,13 @@
-#include "Window.h"
-#include "Console.h"
+#include "Common/Window.h"
+#include "Common/Debug.h"
 #include <glad/glad.h>
 
 static bool s_GladInitialized = false;
 
 void WindowHandle::Initialize(const std::string_view& title, int width, int height, int flags)
 {
-    RHI_CONDITION_FATAL(title[title.size()] == '\0', "Title string must be null terminated");
-    RHI_CONDITION_FATAL(ValidMode(flags),
-                        "Can only create window with one or none of the window modes");
+    Assert(title[title.size()] == '\0', "Title string must be null terminated");
+    Assert(ValidMode(flags), "Can only create window with one or none of the window modes");
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
@@ -30,19 +29,17 @@ void WindowHandle::Initialize(const std::string_view& title, int width, int heig
     }
 
     GLFWwindow* window = glfwCreateWindow(width, height, title.data(), monitor, nullptr);
-    RHI_CONDITION_FATAL(window != nullptr, "Failed to create GLFW window");
+    Assert(window != nullptr, "Failed to create GLFW window");
     glfwMakeContextCurrent(window);
 
     if (!s_GladInitialized) {
         s_GladInitialized = true;
-        RHI_CONDITION_FATAL(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress),
-                            "Failed to initialize GLAD");
+        Assert(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Failed to initialize GLAD");
     }
 
     if (flags & WindowHandle_VsyncBit) {
         glfwSwapInterval(0);
-    }
-    else {
+    } else {
         glfwSwapInterval(1);
     }
 
@@ -52,7 +49,7 @@ void WindowHandle::Initialize(const std::string_view& title, int width, int heig
 
 void WindowHandle::Destroy()
 {
-    RHI_CONDITION_ERROR(WindowPtr != nullptr, "WindowHandle is nullptr, Cannot destroy window");
+    Assert(WindowPtr != nullptr, "WindowHandle is nullptr, Cannot destroy window");
     glfwDestroyWindow(WindowPtr);
     WindowPtr = nullptr;
     Flags     = 0;
@@ -67,10 +64,9 @@ void WindowHandle::SwapBuffers()
 
 void WindowHandle::InitializeGLFW()
 {
-    RHI_CONDITION_FATAL(glfwInit() == GLFW_TRUE, "Failed to initialize GLFW");
-    glfwSetErrorCallback([](int error, const char* description) {
-        CONTEXT_ERROR("GLFW", "{} => {}", error, description);
-    });
+    Assert(glfwInit() == GLFW_TRUE, "Failed to initialize GLFW");
+    glfwSetErrorCallback(
+        [](int error, const char* description) { Error("GLFW", "{} => {}", error, description); });
 }
 
 void WindowHandle::DestroyGLFW()

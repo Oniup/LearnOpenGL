@@ -8,13 +8,13 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Binaries)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Binaries)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Binaries)
 
-file(GLOB_RECURSE COMMON_SOURCE_FILES RECURSE ${CMAKE_CURRENT_SOURCE_DIR} "Source/*.cpp")
-file(GLOB_RECURSE COMMON_HEADER_FILES RECURSE ${CMAKE_CURRENT_SOURCE_DIR} "Source/*.h")
+file(GLOB_RECURSE COMMON_SOURCE_FILES RECURSE ${CMAKE_CURRENT_SOURCE_DIR} "Source/Common/*.cpp")
+file(GLOB_RECURSE COMMON_HEADER_FILES RECURSE ${CMAKE_CURRENT_SOURCE_DIR} "Source/Common/*.h")
 
 function(AddExecutable project_name)
     add_executable(
         ${project_name}
-            Main/${project_name}.cpp
+            Source/Examples/${project_name}.cpp
             ${COMMON_SOURCE_FILES}
             ${COMMON_HEADER_FILES}
     )

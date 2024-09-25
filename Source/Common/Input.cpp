@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Input.h"
-#include "Console.h"
+#include "Common/Input.h"
+#include "Common/Debug.h"
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -119,16 +119,14 @@ void Input::PollEvents()
     for (RegisteredInput& reg : s_InstancePtr->RegBuffer) {
         if (reg_counted == s_InstancePtr->RegActiveCount) {
             break;
-        }
-        else if (reg.Type == InputType_Unknown) {
+        } else if (reg.Type == InputType_Unknown) {
             continue;
         }
         reg_counted++;
 
         if (!reg.RemoveNextTick) {
             reg.RemoveNextTick = true;
-        }
-        else {
+        } else {
             reg.Type = InputType_Unknown;
             s_InstancePtr->RegActiveCount--;
         }
@@ -151,9 +149,10 @@ bool Input::_RegisterOnce(InputType type, int code, bool pressed)
         }
     }
 
-    CONTEXT_CONDITION_ERROR_RETURN("INPUT", free_index != -1, false,
-                                   "Toggle register buffer full, cannot add {} {}",
-                                   TypeToString(type), code);
+    if (free_index != -1) {
+        Error("Toggle register buffer full, cannot add {} {}", TypeToString(type), code);
+        return false;
+    }
 
     RegBuffer[free_index] = RegisteredInput {
         .Type           = type,
