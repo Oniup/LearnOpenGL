@@ -4,7 +4,7 @@ project(
 )
 
 add_library(
-    glad STATIC
+    glad SHARED
         include/glad/glad.h
         include/KHR/khrplatform.h
         src/glad.c

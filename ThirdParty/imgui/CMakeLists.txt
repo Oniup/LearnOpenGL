@@ -1,7 +1,7 @@
 project(imgui)
 
 add_library(
-    imgui STATIC
+    imgui SHARED
         imgui/imconfig.h
         imgui/imgui.h
         imgui/imgui_internal.h

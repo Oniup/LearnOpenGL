@@ -6,8 +6,8 @@ static bool s_GladInitialized = false;
 
 void WindowHandle::Initialize(const std::string_view& title, int width, int height, int flags)
 {
-    Assert(title[title.size()] == '\0', "Title string must be null terminated");
-    Assert(ValidMode(flags), "Can only create window with one or none of the window modes");
+    ASSERT(title[title.size()] == '\0', "Title string must be null terminated");
+    ASSERT(ValidMode(flags), "Can only create window with one or none of the window modes");
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
@@ -29,17 +29,18 @@ void WindowHandle::Initialize(const std::string_view& title, int width, int heig
     }
 
     GLFWwindow* window = glfwCreateWindow(width, height, title.data(), monitor, nullptr);
-    Assert(window != nullptr, "Failed to create GLFW window");
+    ASSERT(window != nullptr, "Failed to create GLFW window");
     glfwMakeContextCurrent(window);
 
     if (!s_GladInitialized) {
         s_GladInitialized = true;
-        Assert(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Failed to initialize GLAD");
+        ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Failed to initialize GLAD");
     }
 
     if (flags & WindowHandle_VsyncBit) {
         glfwSwapInterval(0);
-    } else {
+    }
+    else {
         glfwSwapInterval(1);
     }
 
@@ -49,7 +50,7 @@ void WindowHandle::Initialize(const std::string_view& title, int width, int heig
 
 void WindowHandle::Destroy()
 {
-    Assert(WindowPtr != nullptr, "WindowHandle is nullptr, Cannot destroy window");
+    ASSERT(WindowPtr != nullptr, "WindowHandle is nullptr, Cannot destroy window");
     glfwDestroyWindow(WindowPtr);
     WindowPtr = nullptr;
     Flags     = 0;
@@ -64,9 +65,10 @@ void WindowHandle::SwapBuffers()
 
 void WindowHandle::InitializeGLFW()
 {
-    Assert(glfwInit() == GLFW_TRUE, "Failed to initialize GLFW");
-    glfwSetErrorCallback(
-        [](int error, const char* description) { Error("GLFW", "{} => {}", error, description); });
+    ASSERT(glfwInit() == GLFW_TRUE, "Failed to initialize GLFW");
+    glfwSetErrorCallback([](int error, const char* description) {
+        ERROR("GLFW", "{} => {}", error, description);
+    });
 }
 
 void WindowHandle::DestroyGLFW()

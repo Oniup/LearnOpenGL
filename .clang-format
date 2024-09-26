@@ -1,7 +1,6 @@
 ---
-# Core
+# Base
 BasedOnStyle: LLVM
-BreakBeforeBraces: Mozilla
 Standard: c++17
 UseTab: Never
 ColumnLimit: 99
@@ -15,6 +14,26 @@ SpaceBeforeCpp11BracedList: true
 SpaceBeforeCtorInitializerColon: true
 AlwaysBreakTemplateDeclarations: true
 AlignConsecutiveAssignments: true
+AllowShortLambdasOnASingleLine: None
+AllowShortFunctionsOnASingleLine: InlineOnly
+BreakBeforeBraces: Custom
+BraceWrapping:
+    AfterCaseLabel: false
+    AfterClass: true
+    AfterControlStatement: false
+    AfterEnum: true
+    AfterFunction: true
+    AfterNamespace: false
+    AfterObjCDeclaration: false
+    AfterStruct: true
+    AfterUnion: true
+    AfterExternBlock: false
+    BeforeCatch: false
+    BeforeElse: true
+    IndentBraces: false
+    SplitEmptyFunction: true
+    SplitEmptyRecord: true
+    SplitEmptyNamespace: true
 # Indentation
 IndentWrappedFunctionNames: true
 IndentWidth: 4
@@ -23,5 +42,4 @@ PackConstructorInitializers: NextLineOnly
 PPIndentWidth: 4
 IndentPPDirectives: AfterHash
 AccessModifierOffset: -4
-AllowShortFunctionsOnASingleLine: InlineOnly
 ...
