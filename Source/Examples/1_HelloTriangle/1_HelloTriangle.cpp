@@ -59,7 +59,7 @@ uint32_t CreateShaderProgram()
 
 int main()
 {
-    Context context("Basic Shape", false);
+    Context context("Hello Triangle", false);
 
     glm::vec3 vertices[] = {
         glm::vec3(-0.5f, -0.5f, 0.0f), // Left
@@ -83,7 +83,7 @@ int main()
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
-    while (context.BeginUpdate()) {
+    while (context.BeginFrame()) {
         glClearColor(0.2f, 0.5f, 0.9f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -93,7 +93,7 @@ int main()
         glBindVertexArray(vertex_array);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
-        context.EndUpdate();
+        context.EndFrame();
     }
 
     glDeleteProgram(program);

@@ -15,6 +15,6 @@ struct Context
     Context(const std::string_view& title, bool enable_imgui);
     ~Context();
 
-    bool BeginUpdate();
-    void EndUpdate();
+    bool BeginFrame();
+    void EndFrame();
 };

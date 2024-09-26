@@ -2,6 +2,7 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 #include <filesystem>
+#include <fmt/format.h>
 #include <glad/glad.h>
 #include <imgui.h>
 
@@ -9,7 +10,7 @@ Context::Context(const std::string_view& title, bool enable_imgui)
       : ImGuiEnabled(enable_imgui)
 {
     WindowHandle::InitializeGLFW();
-    Window.Initialize("Learning OpenGL - BasicShape", -1, -1);
+    Window.Initialize(fmt::format("Learning OpenGL - {}", title), -1, -1);
     Input.Initialize(Window);
 
     if (enable_imgui) {
@@ -41,7 +42,7 @@ Context::~Context()
     WindowHandle::DestroyGLFW();
 }
 
-bool Context::BeginUpdate()
+bool Context::BeginFrame()
 {
     if (Window.Closing()) {
         return false;
@@ -63,7 +64,7 @@ bool Context::BeginUpdate()
     return true;
 }
 
-void Context::EndUpdate()
+void Context::EndFrame()
 {
     if (ImGuiEnabled) {
         ImGui::Render();
