@@ -1,10 +1,6 @@
 # Used Godot Engine's gitignore as a template
 # Original source: https://github.com/godotengine/godot/blob/master/.gitignore#L3
 
-# Build output
-###############################################################################
-imgui.ini
-
 # Build directories
 [Dd]ebug/
 [Dd]ebugPublic/

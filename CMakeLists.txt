@@ -25,6 +25,7 @@ function(AddExecutable exec_name)
         ${exec_name}
         PUBLIC
             ${ThirdParty_COMPILE_DEFS}
+            EXEC_NAME="${exec_name}"
     )
     target_include_directories(
         ${exec_name}

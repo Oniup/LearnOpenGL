@@ -15,6 +15,7 @@ enum WindowHandleFlags
     WindowHandle_TrippleBufferBit     = 1 << 4,
     WindowHandle_ResizeableBit        = 1 << 5,
     WindowHandle_TransparentBufferBit = 1 << 6,
+    WindowHandle_EnableImGuiBit       = 1 << 7,
 };
 
 struct WindowHandle

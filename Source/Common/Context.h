@@ -10,9 +10,8 @@ struct Context
     WindowHandle Window;
     struct Input Input;
     float DeltaTime;
-    bool ImGuiEnabled;
 
-    Context(const std::string_view& title, bool enable_imgui);
+    Context(const std::string_view& win_title, int win_flags = WindowHandle::DefaultFlags);
     ~Context();
 
     bool BeginFrame();

@@ -22,7 +22,8 @@ uint32_t CreateShaderProgram()
     uint32_t vertex_shader   = glCreateShader(GL_VERTEX_SHADER);
     uint32_t fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
 
-    for (uint32_t i = 0; i < 2; i++) {
+    for (uint32_t i = 0; i < 2; i++)
+    {
         uint32_t shader    = i == 0 ? vertex_shader : fragment_shader;
         const char* source = i == 0 ? g_VertShaderSource : g_FragShaderSource;
 
@@ -32,7 +33,8 @@ uint32_t CreateShaderProgram()
 
         int success;
         glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-        if (!success) {
+        if (!success)
+        {
             char info_log[512];
             glGetShaderInfoLog(shader, 512, nullptr, info_log);
             FATAL("Failed to compile {} shader: {}", i == 0 ? "vertex" : "fragment", info_log);
@@ -46,7 +48,8 @@ uint32_t CreateShaderProgram()
 
     int success;
     glGetProgramiv(program, GL_LINK_STATUS, &success);
-    if (!success) {
+    if (!success)
+    {
         char info_log[512];
         glGetProgramInfoLog(program, 512, nullptr, info_log);
         FATAL("Failed to link shader program's vertex and fragment shaders: {}", info_log);
@@ -59,7 +62,7 @@ uint32_t CreateShaderProgram()
 
 int main()
 {
-    Context context("Hello Triangle", false);
+    Context context("Hello Triangle");
 
     glm::vec3 vertices[] = {
         glm::vec3(-0.5f, -0.5f, 0.0f), // Left
@@ -83,7 +86,8 @@ int main()
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
-    while (context.BeginFrame()) {
+    while (context.BeginFrame())
+    {
         glClearColor(0.2f, 0.5f, 0.9f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 

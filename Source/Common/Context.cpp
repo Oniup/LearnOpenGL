@@ -6,14 +6,13 @@
 #include <glad/glad.h>
 #include <imgui.h>
 
-Context::Context(const std::string_view& title, bool enable_imgui)
-      : ImGuiEnabled(enable_imgui)
+Context::Context(const std::string_view& win_title, int win_flags)
 {
     WindowHandle::InitializeGLFW();
-    Window.Initialize(fmt::format("Learning OpenGL - {}", title), -1, -1);
+    Window.Initialize(fmt::format("Learning OpenGL - {}", win_title), -1, -1, win_flags);
     Input.Initialize(Window);
 
-    if (enable_imgui) {
+    if (win_flags & WindowHandle_EnableImGuiBit) {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
@@ -33,7 +32,7 @@ Context::Context(const std::string_view& title, bool enable_imgui)
 
 Context::~Context()
 {
-    if (ImGuiEnabled) {
+    if (Window.Flags & WindowHandle_EnableImGuiBit) {
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
@@ -55,7 +54,7 @@ bool Context::BeginFrame()
     DeltaTime              = time - last_time;
     last_time              = time;
 
-    if (ImGuiEnabled) {
+    if (Window.Flags & WindowHandle_EnableImGuiBit) {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -66,7 +65,7 @@ bool Context::BeginFrame()
 
 void Context::EndFrame()
 {
-    if (ImGuiEnabled) {
+    if (Window.Flags & WindowHandle_EnableImGuiBit) {
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
