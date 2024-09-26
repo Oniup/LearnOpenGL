@@ -8,25 +8,22 @@ static Input* s_InstancePtr = nullptr;
 
 #define KY_REG_ONCE_IMPL(func, input_type, code, pressed)                                         \
     bool result = func(code);                                                                     \
-    if (result) {                                                                                 \
+    if (result)                                                                                   \
         result = s_InstancePtr->_RegisterOnce(input_type, code, pressed);                         \
-    }                                                                                             \
     return result
 
 #define KY_REG_ONCE_WITH_HANDLE_IMPL(func, handle, input_type, code, pressed)                     \
     bool result = func(handle, code);                                                             \
-    if (result) {                                                                                 \
+    if (result)                                                                                   \
         result = s_InstancePtr->_RegisterOnce(input_type, code, pressed);                         \
-    }                                                                                             \
     return result
 
 void Input::Initialize(WindowHandle& window)
 {
     s_InstancePtr            = this;
     s_InstancePtr->WindowPtr = &window;
-    for (RegisteredInput& reg : s_InstancePtr->RegBuffer) {
+    for (RegisteredInput& reg : s_InstancePtr->RegBuffer)
         reg.Type = InputType_Unknown;
-    }
 }
 
 bool Input::KeyPressed(KeyCode code)
@@ -71,7 +68,8 @@ bool Input::MouseRelease(MouseButton button)
 
 std::string_view Input::TypeToString(InputType type)
 {
-    switch (type) {
+    switch (type)
+    {
     case InputType_Keyboard:
         return std::string_view("Keyboard");
     case InputType_Mouse:
@@ -85,7 +83,8 @@ std::string_view Input::TypeToString(InputType type)
 
 std::string_view Input::MouseModeToString(MouseMode mode)
 {
-    switch (mode) {
+    switch (mode)
+    {
     case MouseMode::MouseMode_Visable:
         return std::string_view("Visable");
     case MouseMode::MouseMode_Hidden:
@@ -101,19 +100,18 @@ void Input::PollEvents()
 {
     glfwPollEvents();
     size_t reg_counted = 0;
-    for (RegisteredInput& reg : s_InstancePtr->RegBuffer) {
-        if (reg_counted == s_InstancePtr->RegActiveCount) {
+    for (RegisteredInput& reg : s_InstancePtr->RegBuffer)
+    {
+        if (reg_counted == s_InstancePtr->RegActiveCount)
             break;
-        }
-        else if (reg.Type == InputType_Unknown) {
+        else if (reg.Type == InputType_Unknown)
             continue;
-        }
         reg_counted++;
 
-        if (!reg.RemoveNextTick) {
+        if (!reg.RemoveNextTick)
             reg.RemoveNextTick = true;
-        }
-        else {
+        else
+        {
             reg.Type = InputType_Unknown;
             s_InstancePtr->RegActiveCount--;
         }
@@ -123,20 +121,24 @@ void Input::PollEvents()
 bool Input::_RegisterOnce(InputType type, int code, bool pressed)
 {
     int free_index = -1;
-    for (size_t i = 0; i < RegBuffer.size(); i++) {
-        if (RegBuffer[i].Type == InputType_Unknown) {
+    for (size_t i = 0; i < RegBuffer.size(); i++)
+    {
+        if (RegBuffer[i].Type == InputType_Unknown)
+        {
             free_index = i;
             continue;
         }
         bool found = RegBuffer[i].Type == type && RegBuffer[i].Code == code &&
                      RegBuffer[i].Pressed == pressed;
-        if (found) {
+        if (found)
+        {
             RegBuffer[i].RemoveNextTick = false;
             return false;
         }
     }
 
-    if (free_index != -1) {
+    if (free_index != -1)
+    {
         ERROR("Toggle register buffer full, cannot add {} {}", TypeToString(type), code);
         return false;
     }

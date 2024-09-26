@@ -24,7 +24,7 @@ struct WindowHandle
         WindowHandle_ResizeableBit | WindowHandle_VsyncBit | WindowHandle_WindowedModeBit;
 
     GLFWwindow* WindowPtr = nullptr;
-    int Flags             = DefaultFlags;
+    int         Flags     = DefaultFlags;
 
     static void InitializeGLFW();
     static void DestroyGLFW();
@@ -33,16 +33,14 @@ struct WindowHandle
     void Initialize(const std::string_view& title, int width, int height,
                     int flags = DefaultFlags);
     void Destroy();
-
     bool Closing() const;
     void SwapBuffers();
-    inline bool Valid() const { return WindowPtr != nullptr; }
-
-    const std::string_view Title() const;
-    glm::ivec2 FramebufferSize() const;
-    glm::ivec2 Size() const;
-    glm::ivec2 Position() const;
-
     void Close(bool close = true);
     void MakeCurrentContext() const;
+
+    inline bool            Valid() const { return WindowPtr != nullptr; }
+    const std::string_view Title() const;
+    glm::ivec2             FramebufferSize() const;
+    glm::ivec2             Size() const;
+    glm::ivec2             Position() const;
 };

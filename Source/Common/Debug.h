@@ -13,7 +13,8 @@
 #define ASCII_RESET "\033[0m"
 
 #define ASSERT(_Expression, ...)                                                                  \
-    if (!(_Expression)) {                                                                         \
+    if (!(_Expression))                                                                           \
+    {                                                                                             \
         fmt::print(stderr, fmt::emphasis::bold,                                                   \
                    ASCII_RED "Assert ({}) == false: '{}' {}{}:\n{}\n" ASCII_RESET, #_Expression,  \
                    __FILE__, __FUNCTION__, __LINE__, fmt::format(__VA_ARGS__));                   \

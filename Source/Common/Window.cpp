@@ -17,32 +17,31 @@ void WindowHandle::Initialize(const std::string_view& title, int width, int heig
     glfwWindowHint(GLFW_DECORATED, (flags & ~WindowHandle_BorderlessModeBit) != 0);
     glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, (flags & WindowHandle_TransparentBufferBit) != 0);
 
-    GLFWmonitor* monitor       = glfwGetPrimaryMonitor();
+    GLFWmonitor*       monitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* vidmode = glfwGetVideoMode(monitor);
-    if (width < 0 | height < 0) {
+    if (width < 0 | height < 0)
+    {
         width  = vidmode->width / 2;
         height = vidmode->height / 2;
     }
 
-    if (flags & ~WindowHandle_FullscreenModeBit) {
+    if (flags & ~WindowHandle_FullscreenModeBit)
         monitor = nullptr;
-    }
 
     GLFWwindow* window = glfwCreateWindow(width, height, title.data(), monitor, nullptr);
     ASSERT(window != nullptr, "Failed to create GLFW window");
     glfwMakeContextCurrent(window);
 
-    if (!s_GladInitialized) {
+    if (!s_GladInitialized)
+    {
         s_GladInitialized = true;
         ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "Failed to initialize GLAD");
     }
 
-    if (flags & WindowHandle_VsyncBit) {
+    if (flags & WindowHandle_VsyncBit)
         glfwSwapInterval(0);
-    }
-    else {
+    else
         glfwSwapInterval(1);
-    }
 
     WindowPtr = window;
     Flags     = flags;
@@ -61,6 +60,16 @@ void WindowHandle::SwapBuffers()
     glfwSwapBuffers(WindowPtr);
     glm::ivec2 frame_buffer_size = FramebufferSize();
     glViewport(0, 0, frame_buffer_size.x, frame_buffer_size.y);
+}
+
+void WindowHandle::Close(bool close)
+{
+    glfwSetWindowShouldClose(WindowPtr, close);
+}
+
+void WindowHandle::MakeCurrentContext() const
+{
+    glfwMakeContextCurrent(WindowPtr);
 }
 
 void WindowHandle::InitializeGLFW()
@@ -114,14 +123,4 @@ glm::ivec2 WindowHandle::Position() const
     glm::ivec2 win_pos;
     glfwGetWindowPos(WindowPtr, &win_pos.x, &win_pos.y);
     return win_pos;
-}
-
-void WindowHandle::Close(bool close)
-{
-    glfwSetWindowShouldClose(WindowPtr, close);
-}
-
-void WindowHandle::MakeCurrentContext() const
-{
-    glfwMakeContextCurrent(WindowPtr);
 }

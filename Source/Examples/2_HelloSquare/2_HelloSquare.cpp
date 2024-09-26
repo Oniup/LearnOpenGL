@@ -1,25 +1,11 @@
 #include "Common/Context.h"
 #include "Common/Debug.h"
+#include <Common/GraphicsDevice/Shader.h>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
-#define VERTEX_BUFFER 0
+#define VERTEX_BUFFER  0
 #define ELEMENT_BUFFER 1
-
-constexpr const char* g_VertShaderSource = "#version 450 core\n"
-                                           "layout (location = 0) in vec3 a_Position;"
-                                           "void main() "
-                                           "{"
-                                           "    gl_Position = vec4(a_Position.xyz, 1.0);"
-                                           "}";
-
-constexpr const char* g_FragShaderSource = "#version 450 core\n"
-                                           "out vec4 FragColor;"
-                                           "uniform vec3 u_ShapeColor;"
-                                           "void main()"
-                                           "{"
-                                           "    FragColor = vec4(u_ShapeColor.xyz, 1.0f);"
-                                           "}";
 
 uint32_t CreateShaderProgram()
 {
@@ -28,11 +14,14 @@ uint32_t CreateShaderProgram()
 
     for (uint32_t i = 0; i < 2; i++)
     {
-        uint32_t shader    = i == 0 ? vertex_shader : fragment_shader;
-        const char* source = i == 0 ? g_VertShaderSource : g_FragShaderSource;
+        uint32_t          shader = i == 0 ? vertex_shader : fragment_shader;
+        const std::string source =
+            i == 0 ? Shader::Read("Source/Examples/2_HelloSquare/Vertex.glsl")
+                   : Shader::Read("Source/Examples/2_HelloSquare/Fragment.glsl");
+        const char* ptr_src = source.c_str();
 
         // Shader Source: https://docs.gl/gl4/glShaderSource
-        glShaderSource(shader, 1, &source, NULL);
+        glShaderSource(shader, 1, &ptr_src, NULL);
         glCompileShader(shader);
 
         int success;
@@ -41,7 +30,8 @@ uint32_t CreateShaderProgram()
         {
             char info_log[512];
             glGetShaderInfoLog(shader, 512, nullptr, info_log);
-            FATAL("Failed to compile {} shader: {}", i == 0 ? "vertex" : "fragment", info_log);
+            FATAL("Failed to compile {} shader: {}\nSource:\n{}", i == 0 ? "vertex" : "fragment",
+                  info_log, source);
         }
     }
 

@@ -14,6 +14,9 @@ SpaceBeforeCpp11BracedList: true
 SpaceBeforeCtorInitializerColon: true
 AlwaysBreakTemplateDeclarations: true
 AlignConsecutiveAssignments: true
+AlignConsecutiveBitFields: true
+AlignConsecutiveDeclarations: true
+AlignConsecutiveMacros: true
 AllowShortLambdasOnASingleLine: None
 AllowShortFunctionsOnASingleLine: InlineOnly
 BreakBeforeBraces: Custom
@@ -58,5 +61,6 @@ ConstructorInitializerIndentWidth: 6
 PackConstructorInitializers: NextLineOnly
 PPIndentWidth: 4
 IndentPPDirectives: AfterHash
+NamespaceIndentation: Inner
 AccessModifierOffset: -4
 ...
