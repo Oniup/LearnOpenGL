@@ -16,8 +16,8 @@ uint32_t CreateShaderProgram()
     {
         uint32_t          shader = i == 0 ? vertex_shader : fragment_shader;
         const std::string source =
-            i == 0 ? Shader::Read("Source/Examples/3_CubeWithBasicLighting/Vertex.glsl")
-                   : Shader::Read("Source/Examples/3_CubeWithBasicLighting/Fragment.glsl");
+            i == 0 ? Shader::Read("Source/Examples/" EXEC_NAME "/Vertex.glsl")
+                   : Shader::Read("Source/Examples/" EXEC_NAME "/Fragment.glsl");
         const char* ptr_src = source.c_str();
 
         // Shader Source: https://docs.gl/gl4/glShaderSource
