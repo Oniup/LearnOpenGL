@@ -24,7 +24,7 @@ uint32_t CreateShaderProgram()
 
     for (uint32_t i = 0; i < 2; i++)
     {
-        uint32_t shader    = i == 0 ? vertex_shader : fragment_shader;
+        uint32_t    shader = i == 0 ? vertex_shader : fragment_shader;
         const char* source = i == 0 ? g_VertShaderSource : g_FragShaderSource;
 
         // Shader Source: https://docs.gl/gl4/glShaderSource

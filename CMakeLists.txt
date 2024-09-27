@@ -43,3 +43,4 @@ endfunction()
 
 AddExecutable(1_HelloTriangle)
 AddExecutable(2_HelloSquare)
+AddExecutable(3_CubeAndBasicLighting)
