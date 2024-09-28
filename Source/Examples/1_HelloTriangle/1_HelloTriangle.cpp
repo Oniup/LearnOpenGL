@@ -62,7 +62,7 @@ uint32_t CreateShaderProgram()
 
 int main()
 {
-    Context context("Hello Triangle");
+    Context context(EXEC_NAME);
 
     glm::vec3 vertices[] = {
         glm::vec3(-0.5f, -0.5f, 0.0f), // Left

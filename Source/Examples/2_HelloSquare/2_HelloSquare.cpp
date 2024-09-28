@@ -1,6 +1,6 @@
 #include "Common/Context.h"
 #include "Common/Debug.h"
-#include <Common/GraphicsDevice/Shader.h>
+#include "Common/Utils.h"
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
@@ -16,8 +16,7 @@ uint32_t CreateShaderProgram()
     {
         uint32_t          shader = i == 0 ? vertex_shader : fragment_shader;
         const std::string source =
-            i == 0 ? Shader::Read("Source/Examples/2_HelloSquare/Vertex.glsl")
-                   : Shader::Read("Source/Examples/2_HelloSquare/Fragment.glsl");
+            i == 0 ? ReadSource(DIR_PATH "/Vertex.glsl") : ReadSource(DIR_PATH "/Fragment.glsl");
         const char* ptr_src = source.c_str();
 
         // Shader Source: https://docs.gl/gl4/glShaderSource
@@ -56,7 +55,7 @@ uint32_t CreateShaderProgram()
 
 int main()
 {
-    Context context("Hello Square", WindowHandle::DefaultFlags | WindowHandle_EnableImGuiBit);
+    Context context(EXEC_NAME, WindowHandle::DefaultFlags | WindowHandle_EnableImGuiBit);
 
     glm::vec3 vertices[] = {
         glm::vec3(0.5f, 0.5f, 0.0f),   // top right

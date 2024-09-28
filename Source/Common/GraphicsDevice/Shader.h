@@ -1,39 +1,34 @@
 #pragma once
 
+#include "Common/Utils.h"
 #include <glm/glm.hpp>
-#include <limits>
 #include <string>
 #include <vector>
 
-class Shader
+enum ShaderType
 {
-public:
-    enum Type
-    {
-        Fragment = 0x8B30,
-        Vertex   = 0x8B31,
-        Geometry = 0x8DD9,
-        Compute  = 0x91B9,
-        Invalid  = -1,
-    };
+    ShaderType_Fragment = 0x8B30,
+    ShaderType_Vertex   = 0x8B31,
+    ShaderType_Geometry = 0x8DD9,
+    ShaderType_Compute  = 0x91B9,
+    ShaderType_Invalid  = -1,
+};
 
-    struct Source
-    {
-        std::string_view path;
-        Type             type;
-    };
+struct ShaderSource
+{
+    std::string Source;
+    ShaderType  Type;
 
-public:
-    static constexpr uint32_t InvalidId = std::numeric_limits<uint32_t>::max();
+    ShaderSource(const std::string_view& path, ShaderType type);
+};
 
-    static std::string_view TypeToString(Type type);
-    static std::string      Read(const std::string_view& shader_path);
+struct Shader
+{
+    uint32_t Program;
 
-public:
     Shader() = default;
-    Shader(const std::vector<Source>& sources);
+    Shader(const std::vector<ShaderSource>& sources);
 
-public:
     void Destroy();
     void Bind();
     void Unbind();
@@ -51,7 +46,6 @@ public:
     void UniformMat2(const std::string_view& location, const glm::mat2& val);
     void UniformMat3(const std::string_view& location, const glm::mat3& val);
     void UniformMat4(const std::string_view& location, const glm::mat4& val);
-
-private:
-    uint32_t m_Program = InvalidId;
 };
+
+std::string_view ShaderTypeToString(ShaderType type);

@@ -1,68 +1,27 @@
 #include "Common/Context.h"
 #include "Common/Debug.h"
-#include <Common/GraphicsDevice/Shader.h>
+#include "Common/GraphicsDevice/Shader.h"
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
 #define VERTEX_BUFFER  0
 #define ELEMENT_BUFFER 1
 
-uint32_t CreateShaderProgram()
+struct Vertex
 {
-    uint32_t vertex_shader   = glCreateShader(GL_VERTEX_SHADER);
-    uint32_t fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-
-    for (uint32_t i = 0; i < 2; i++)
-    {
-        uint32_t          shader = i == 0 ? vertex_shader : fragment_shader;
-        const std::string source =
-            i == 0 ? Shader::Read("Source/Examples/" EXEC_NAME "/Vertex.glsl")
-                   : Shader::Read("Source/Examples/" EXEC_NAME "/Fragment.glsl");
-        const char* ptr_src = source.c_str();
-
-        // Shader Source: https://docs.gl/gl4/glShaderSource
-        glShaderSource(shader, 1, &ptr_src, NULL);
-        glCompileShader(shader);
-
-        int success;
-        glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-        if (!success)
-        {
-            char info_log[512];
-            glGetShaderInfoLog(shader, 512, nullptr, info_log);
-            FATAL("Failed to compile {} shader: {}\nSource:\n{}", i == 0 ? "vertex" : "fragment",
-                  info_log, source);
-        }
-    }
-
-    uint32_t program = glCreateProgram();
-    glAttachShader(program, vertex_shader);
-    glAttachShader(program, fragment_shader);
-    glLinkProgram(program);
-
-    int success;
-    glGetProgramiv(program, GL_LINK_STATUS, &success);
-    if (!success)
-    {
-        char info_log[512];
-        glGetProgramInfoLog(program, 512, nullptr, info_log);
-        FATAL("Failed to link shader program's vertex and fragment shaders: {}", info_log);
-    }
-
-    glDeleteShader(vertex_shader);
-    glDeleteShader(fragment_shader);
-    return program;
-}
+    glm::vec3 Position;
+    glm::vec2 UV;
+};
 
 int main()
 {
-    Context context("Hello Square", WindowHandle::DefaultFlags | WindowHandle_EnableImGuiBit);
+    Context context(EXEC_NAME, WindowHandle::DefaultFlags | WindowHandle_EnableImGuiBit);
 
-    glm::vec3 vertices[] = {
-        glm::vec3(0.5f, 0.5f, 0.0f),   // top right
-        glm::vec3(0.5f, -0.5f, 0.0f),  // bottom right
-        glm::vec3(-0.5f, -0.5f, 0.0f), // bottom left
-        glm::vec3(-0.5f, 0.5f, 0.0f)   // top left
+    Vertex vertices[] = {
+        Vertex {glm::vec3(0.5f, 0.5f, 0.0f), glm::vec2(1.0f, 1.0f)},   // top right
+        Vertex {glm::vec3(0.5f, -0.5f, 0.0f), glm::vec2(1.0f, 0.0f)},  // bottom right
+        Vertex {glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f)}, // bottom left
+        Vertex {glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec2(0.0f, 1.0f)},  // top left
     };
 
     glm::vec3 clear_color(0.2f, 0.5f, 0.9f);
@@ -73,7 +32,10 @@ int main()
         1, 2, 3  // second triangle
     };
 
-    uint32_t shader = CreateShaderProgram();
+    Shader shader({
+        ShaderSource(DIR_PATH "/Vertex.glsl", ShaderType_Vertex),
+        ShaderSource(DIR_PATH "/Fragment.glsl", ShaderType_Fragment),
+    });
 
     uint32_t vertex_array;
     glGenVertexArrays(1, &vertex_array);
@@ -88,45 +50,45 @@ int main()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                          (void*)offsetof(Vertex, Position));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, UV));
 
     int max_vertex_attrib_count;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &max_vertex_attrib_count);
 
     bool wire_frame_mode = false;
+    bool show_uv_map     = false;
     while (context.BeginFrame())
     {
         glClearColor(clear_color.r, clear_color.g, clear_color.b, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        if (ImGui::Begin("Config###" EXEC_NAME))
+        bool prev_switch_draw_mode = wire_frame_mode;
+        if (ImGui::Begin("Options###" EXEC_NAME))
         {
-            if (ImGui::CollapsingHeader("Options", ImGuiTreeNodeFlags_DefaultOpen))
-            {
-                bool prev_switch_draw_mode = wire_frame_mode;
-                ImGui::Checkbox("Wireframe Mode", &wire_frame_mode);
-                if (prev_switch_draw_mode != wire_frame_mode)
-                {
-                    if (wire_frame_mode)
-                        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                    else
-                        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-                }
-
-                ImGui::ColorEdit3("Background color", (float*)&clear_color);
-                ImGui::ColorEdit3("Square color", (float*)&shape_color);
-            }
-            if (ImGui::CollapsingHeader("About"))
-            {
-                ImGui::Text("Max number of vertex attributes your gpu supports: %d",
-                            max_vertex_attrib_count);
-            }
+            // Toggle Modes
+            ImGui::Checkbox("Wireframe Mode", &wire_frame_mode);
+            ImGui::Checkbox("Show UV Map", &show_uv_map);
+            // Colors
+            ImGui::ColorEdit3("Background color", (float*)&clear_color);
+            ImGui::ColorEdit3("Square color", (float*)&shape_color);
             ImGui::End();
         }
 
-        glUseProgram(shader);
-        glUniform3f(glGetUniformLocation(shader, "u_ShapeColor"), shape_color.r, shape_color.g,
-                    shape_color.b);
+        if (prev_switch_draw_mode != wire_frame_mode)
+        {
+            if (wire_frame_mode)
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            else
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
+
+        glUseProgram(shader.Program);
+        glUniform3f(glGetUniformLocation(shader.Program, "u_ShapeColor"), shape_color.r,
+                    shape_color.g, shape_color.b);
+        glUniform1i(glGetUniformLocation(shader.Program, "u_ShowUvMap"), (int)show_uv_map);
 
         glBindVertexArray(vertex_array);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -134,5 +96,5 @@ int main()
         context.EndFrame();
     }
 
-    glDeleteProgram(shader);
+    shader.Destroy();
 }

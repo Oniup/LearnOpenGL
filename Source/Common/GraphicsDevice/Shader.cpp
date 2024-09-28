@@ -4,136 +4,168 @@
 #include <fmt/format.h>
 #include <glad/glad.h>
 
-std::string_view Shader::TypeToString(Type type)
+ShaderSource::ShaderSource(const std::string_view& path, ShaderType type)
+      : Source(ReadSource(path)), Type(type)
+{
+}
+
+std::string_view ShaderTypeToString(ShaderType type)
 {
     switch (type)
     {
-    case Fragment:
+    case ShaderType_Fragment:
         return "Fragment";
-    case Vertex:
+    case ShaderType_Vertex:
         return "Vertex";
-    case Geometry:
+    case ShaderType_Geometry:
         return "Geometry";
-    case Compute:
+    case ShaderType_Compute:
         return "Compute";
     default:
         return "Invalid";
     }
 }
 
-std::string Shader::Read(const std::string_view& shader_path)
+Shader::Shader(const std::vector<ShaderSource>& sources)
 {
-    std::FILE* file = std::fopen(shader_path.data(), "rb");
-    ASSERT(file, "Shader file path {} doesn't exist", shader_path);
-
-    std::fseek(file, 0, SEEK_END);
-    size_t size = std::ftell(file);
-    std::fseek(file, 0, SEEK_SET);
-
-    std::string source;
-    source.reserve(size);
-    char line[1024];
-    while (std::fgets(line, sizeof(line), file) != nullptr)
+    std::vector<uint32_t> shader_ids;
+    shader_ids.reserve(sources.size());
+    for (const ShaderSource& source : sources)
     {
-        source += line;
+        if (source.Source.size() < 17)
+        {
+            FATAL("Failed to compile {} shader, Source doesn't exist",
+                  ShaderTypeToString(source.Type));
+        }
+
+        uint32_t    shader     = glCreateShader((uint32_t)source.Type);
+        const char* ptr_source = source.Source.c_str();
+
+        glShaderSource(shader, 1, &ptr_source, nullptr);
+        glCompileShader(shader);
+
+        int success;
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+        if (!success)
+        {
+            constexpr size_t log_size = 1024;
+            char             info_log[log_size];
+            glGetShaderInfoLog(shader, log_size, nullptr, info_log);
+            FATAL("Failed to compile {} shader\nOpenGL Error:\n{}\n{}",
+                  ShaderTypeToString(source.Type), info_log, source.Source);
+        }
+
+        shader_ids.push_back(shader);
     }
 
-    return source;
-}
+    Program = glCreateProgram();
+    for (uint32_t shader : shader_ids)
+        glAttachShader(Program, shader);
+    glLinkProgram(Program);
 
-Shader::Shader(const std::vector<Source>& sources)
-{
-    std::vector<uint32_t> shader_ids(sources.size());
-    for (const Source& source : sources)
+    int success;
+    glGetProgramiv(Program, GL_LINK_STATUS, &success);
+    if (!success)
     {
+        constexpr size_t log_size = 1024;
+        char             info_log[log_size];
+        glGetProgramInfoLog(Program, log_size, nullptr, info_log);
+        FATAL("Failed to link compiled shaders to program");
     }
+
+    for (uint32_t shader : shader_ids)
+        glDeleteShader(shader);
 }
 
 void Shader::Destroy()
 {
+    glDeleteProgram(Program);
+    Program = InvalidId;
 }
 
 void Shader::Bind()
 {
+    glUseProgram(Program);
 }
 
 void Shader::Unbind()
 {
+    glUseProgram(0);
 }
 
 void Shader::UniformI(const std::string_view& location, uint32_t val)
 {
-    ASSERT(m_Program != InvalidId,
+    ASSERT(Program != InvalidId,
            "Cannot push constant to shader program. Must create shader instance first");
-    glUniform1i(glGetUniformLocation(m_Program, location.data()), val);
+    glUniform1i(glGetUniformLocation(Program, location.data()), val);
 }
 
 void Shader::UniformI2(const std::string_view& location, const glm::ivec2& val)
 {
-    ASSERT(m_Program != InvalidId,
+    ASSERT(Program != InvalidId,
            "Cannot push constant to shader program. Must create shader instance first");
-    glUniform2i(glGetUniformLocation(m_Program, location.data()), val.x, val.y);
+    glUniform2i(glGetUniformLocation(Program, location.data()), val.x, val.y);
 }
 
 void Shader::UniformI3(const std::string_view& location, const glm::ivec3& val)
 {
-    ASSERT(m_Program != InvalidId,
+    ASSERT(Program != InvalidId,
            "Cannot push constant to shader program. Must create shader instance first");
-    glUniform3i(glGetUniformLocation(m_Program, location.data()), val.x, val.y, val.z);
+    glUniform3i(glGetUniformLocation(Program, location.data()), val.x, val.y, val.z);
 }
 
 void Shader::UniformI4(const std::string_view& location, const glm::ivec4& val)
 {
-    ASSERT(m_Program != InvalidId,
+    ASSERT(Program != InvalidId,
            "Cannot push constant to shader program. Must create shader instance first");
-    glUniform4i(glGetUniformLocation(m_Program, location.data()), val.x, val.y, val.z, val.w);
+    glUniform4i(glGetUniformLocation(Program, location.data()), val.x, val.y, val.z, val.w);
 }
 
 void Shader::UniformF(const std::string_view& location, float val)
 {
-    ASSERT(m_Program != InvalidId,
+    ASSERT(Program != InvalidId,
            "Cannot push constant to shader program. Must create shader instance first");
-    glUniform1f(glGetUniformLocation(m_Program, location.data()), val);
+    glUniform1f(glGetUniformLocation(Program, location.data()), val);
 }
 
 void Shader::UniformF2(const std::string_view& location, const glm::vec2& val)
 {
-    ASSERT(m_Program != InvalidId,
+    ASSERT(Program != InvalidId,
            "Cannot push constant to shader program. Must create shader instance first");
-    glUniform2f(glGetUniformLocation(m_Program, location.data()), val.x, val.y);
+    glUniform2f(glGetUniformLocation(Program, location.data()), val.x, val.y);
 }
 
 void Shader::UniformF3(const std::string_view& location, const glm::vec3& val)
 {
-    ASSERT(m_Program != InvalidId,
+    ASSERT(Program != InvalidId,
            "Cannot push constant to shader program. Must create shader instance first");
-    glUniform3f(glGetUniformLocation(m_Program, location.data()), val.x, val.y, val.z);
+    glUniform3f(glGetUniformLocation(Program, location.data()), val.x, val.y, val.z);
 }
 
 void Shader::UniformF4(const std::string_view& location, const glm::vec4& val)
 {
-    ASSERT(m_Program != InvalidId,
+    ASSERT(Program != InvalidId,
            "Cannot push constant to shader program. Must create shader instance first");
-    glUniform4f(glGetUniformLocation(m_Program, location.data()), val.x, val.y, val.z, val.w);
+    glUniform4f(glGetUniformLocation(Program, location.data()), val.x, val.y, val.z, val.w);
 }
 
 void Shader::UniformMat2(const std::string_view& location, const glm::mat2& val)
 {
-    ASSERT(m_Program != InvalidId,
+    ASSERT(Program != InvalidId,
            "Cannot push constant to shader program. Must create shader instance first");
-    glUniformMatrix2fv(glGetUniformLocation(m_Program, location.data()), 1, GL_FALSE, &val[0][0]);
+    glUniformMatrix2fv(glGetUniformLocation(Program, location.data()), 1, GL_FALSE, &val[0][0]);
 }
 
 void Shader::UniformMat3(const std::string_view& location, const glm::mat3& val)
 {
-    ASSERT(m_Program != InvalidId,
+    ASSERT(Program != InvalidId,
            "Cannot push constant to shader program. Must create shader instance first");
-    glUniformMatrix3fv(glGetUniformLocation(m_Program, location.data()), 1, GL_FALSE, &val[0][0]);
+    glUniformMatrix3fv(glGetUniformLocation(Program, location.data()), 1, GL_FALSE, &val[0][0]);
 }
 
 void Shader::UniformMat4(const std::string_view& location, const glm::mat4& val)
 {
-    ASSERT(m_Program != InvalidId,
+    ASSERT(Program != InvalidId,
            "Cannot push constant to shader program. Must create shader instance first");
-    glUniformMatrix4fv(glGetUniformLocation(m_Program, location.data()), 1, GL_FALSE, &val[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(Program, location.data()), 1, GL_FALSE, &val[0][0]);
 }
