@@ -3,6 +3,7 @@
 #include "Common/GraphicsDevice/Shader.h"
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <stb/stb_image.h>
 
 #define VERTEX_BUFFER  0
@@ -86,6 +87,10 @@ int main()
     int max_vertex_attrib_count;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &max_vertex_attrib_count);
 
+    glm::vec3 transform_position(0.0f);
+    glm::vec3 transform_scale(1.0f);
+    glm::vec4 transform_rotate(0.0f, 0.0f, 1.0f, 0.0f);
+
     bool wire_frame_mode = false;
     bool show_uv_map     = false;
     while (context.BeginFrame())
@@ -101,6 +106,13 @@ int main()
             ImGui::Checkbox("Show UV Map", &show_uv_map);
             // Colors
             ImGui::ColorEdit3("Background color", (float*)&clear_color);
+            if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                ImGui::SliderFloat3("Position", &transform_position[0], -2.0f, 2.0f);
+                ImGui::SliderFloat3("Scale", &transform_scale[0], -2.0f, 2.0f);
+                ImGui::SliderFloat3("Rotation Axis", &transform_rotate[0], 0.0f, 1.0f);
+                ImGui::SliderFloat("Rotate", &transform_rotate.w, 0.0f, 360.0f);
+            }
             ImGui::End();
         }
 
@@ -112,11 +124,18 @@ int main()
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         }
 
+        glm::mat4 transform(1.0f);
+        transform = glm::translate(transform, transform_position);
+        transform = glm::scale(transform, transform_scale);
+        transform =
+            glm::rotate(transform, glm::radians(transform_rotate.w), glm::vec3(transform_rotate));
+
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
 
         shader.Bind();
         shader.UniformI("u_ShowUvMap", (int)show_uv_map);
+        shader.UniformMat4("u_Transform", transform);
 
         glBindVertexArray(vertex_array);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
