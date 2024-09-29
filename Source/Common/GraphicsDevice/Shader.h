@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Common/Utils.h"
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
@@ -26,7 +25,7 @@ struct Shader
 {
     uint32_t Program;
 
-    Shader() = default;
+    Shader();
     Shader(const std::vector<ShaderSource>& sources);
 
     void Destroy();

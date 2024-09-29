@@ -4,6 +4,8 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+// Don't need to include #define STB_IMAGE_IMPLEMENTATION due to Common/GraphicsDevice/Texture.h
+// including it in the source file. Otherwise, you'll need to include it
 #include <stb/stb_image.h>
 
 #define VERTEX_BUFFER  0

@@ -1,5 +1,6 @@
 #include "Common/GraphicsDevice/Shader.h"
 #include "Common/Debug.h"
+#include "Common/Utils.h"
 #include <cstdio>
 #include <fmt/format.h>
 #include <glad/glad.h>
@@ -24,6 +25,11 @@ std::string_view ShaderTypeToString(ShaderType type)
     default:
         return "Invalid";
     }
+}
+
+Shader::Shader()
+      : Program(InvalidId)
+{
 }
 
 Shader::Shader(const std::vector<ShaderSource>& sources)
