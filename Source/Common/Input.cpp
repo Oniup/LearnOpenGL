@@ -66,6 +66,13 @@ bool Input::MouseRelease(MouseButton button)
     return glfwGetMouseButton(s_InstancePtr->WindowPtr->WindowPtr, button) == GLFW_RELEASE;
 }
 
+glm::vec2 Input::GetCursorPosition()
+{
+    double x, y;
+    glfwGetCursorPos(s_InstancePtr->WindowPtr->WindowPtr, &x, &y);
+    return glm::vec2((float)x, (float)y);
+}
+
 std::string_view Input::TypeToString(InputType type)
 {
     switch (type)

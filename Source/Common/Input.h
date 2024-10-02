@@ -24,18 +24,18 @@ enum MouseMode
 
 struct RegisteredInput
 {
-    InputType Type      = InputType_Unknown;
-    int Code            = -1;
-    bool RemoveNextTick = false;
-    bool Pressed        = false;
+    InputType Type           = InputType_Unknown;
+    int       Code           = -1;
+    bool      RemoveNextTick = false;
+    bool      Pressed        = false;
 };
 
 struct Input
 {
     static constexpr size_t RegisterOnceBufferSize = 16;
 
-    WindowHandle* WindowPtr = nullptr;
-    size_t RegActiveCount   = 0;
+    WindowHandle*                                       WindowPtr      = nullptr;
+    size_t                                              RegActiveCount = 0;
     std::array<RegisteredInput, RegisterOnceBufferSize> RegBuffer;
 
     void Initialize(WindowHandle& window);
@@ -51,6 +51,7 @@ struct Input
 
     static bool MousePress(MouseButton button);
     static bool MouseRelease(MouseButton button);
+    static glm::vec2 GetCursorPosition();
 
     static std::string_view TypeToString(InputType type);
     static std::string_view MouseModeToString(MouseMode mode);

@@ -1,5 +1,6 @@
 #include "Common/Camera.h"
 #include "Common/Context.h"
+#include "Common/Debug.h"
 #include "Common/GraphicsDevice/Shader.h"
 #include "Common/GraphicsDevice/Texture.h"
 #include "imgui.h"
@@ -65,7 +66,11 @@ int main()
                                                 (float)context.Window.FramebufferSize().y,
                                             0.1f, 100.0f);
 
-    glm::vec3 camera_position = glm::vec3(0.0f, 0.0f, -3.0f);
+    Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+    bool   circle_around      = false;
+    float  camera_sensitivity = 0.1f;
+    float  camera_move_speed  = 1.0f;
+    float  radius             = 10.0f;
 
     bool wire_frame_mode = false;
     bool show_uv_map     = false;
@@ -96,10 +101,20 @@ int main()
                 }
             }
 
-            if (ImGui::CollapsingHeader("Camera "))
+            if (ImGui::CollapsingHeader("Camera"))
             {
+                ImGui::Checkbox("Circle Around", &circle_around);
                 ImGui::DragFloat("Fov", &fov, 1.0f, 10.0f, 120.0f);
-                ImGui::DragFloat2("Position", &camera_position[0], 0.1f, -10.0f, 10.0f);
+                if (circle_around)
+                    ImGui::DragFloat("Circl Around Radius", &radius, 0.1f);
+                else
+                {
+                    ImGui::DragFloat("Move Speed", &camera_move_speed, 0.1f);
+                    ImGui::DragFloat("Sensitivity", &camera_sensitivity, 0.01f);
+                    ImGui::DragFloat3("Position", &camera.Position[0], 0.1f);
+                    ImGui::DragFloat3("Forward", &camera.Forward[0], 0.1f, -1.0f, 1.0f);
+                    ImGui::DragFloat3("Up", &camera.Up[0], 0.1f, -1.0f, 1.0f);
+                }
             }
             ImGui::End();
         }
@@ -120,14 +135,24 @@ int main()
             projection = glm::perspective(glm::radians(fov), aspect, 0.1f, 100.0f);
         }
 
+        glm::mat4 view;
+        if (circle_around)
+        {
+            glm::vec3 position = glm::vec3(glm::sin(glfwGetTime()) * radius, 0.0f,
+                                           glm::cos(glfwGetTime()) * radius);
+            view = glm::lookAt(position, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        }
+        else
+        {
+            view = camera.FpsController(camera_move_speed * context.DeltaTime, camera_sensitivity);
+            radius = glm::distance(camera.Position, glm::vec3(0.0f));
+        }
+
         glm::mat4 transform(1.0f);
         transform = glm::translate(transform, transform_position);
         transform = glm::scale(transform, transform_scale);
         transform =
             glm::rotate(transform, glm::radians(transform_rotate.w), glm::vec3(transform_rotate));
-
-        glm::mat4 view =
-            glm::lookAt(camera_position, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
         texture.Bind(0);
 
