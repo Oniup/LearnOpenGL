@@ -1,3 +1,4 @@
+#include "Common/Camera.h"
 #include "Common/Context.h"
 #include "Common/GraphicsDevice/Shader.h"
 #include "Common/GraphicsDevice/Texture.h"
@@ -25,8 +26,8 @@ int main()
         ShaderSource(DIR_PATH "/Fragment.glsl", ShaderType_Fragment),
     });
 
-    Texture texture("Assets/WoodenCrate/textures/Crate_baseColor.png", TextureMode_Repeat,
-                    TextureFilter_LinearMipmapLinear, TextureFilter_Linear);
+    Texture texture("Assets/StylizedCrateTextures/Stylized_Crate_002_basecolor.jpg",
+                    TextureMode_Repeat, TextureFilter_LinearMipmapLinear, TextureFilter_Linear);
 
     uint32_t vertex_array;
     glGenVertexArrays(1, &vertex_array);
@@ -64,8 +65,7 @@ int main()
                                                 (float)context.Window.FramebufferSize().y,
                                             0.1f, 100.0f);
 
-    glm::mat4 view(1.0f);
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    glm::vec3 camera_position = glm::vec3(0.0f, 0.0f, -3.0f);
 
     bool wire_frame_mode = false;
     bool show_uv_map     = false;
@@ -99,6 +99,7 @@ int main()
             if (ImGui::CollapsingHeader("Camera "))
             {
                 ImGui::DragFloat("Fov", &fov, 1.0f, 10.0f, 120.0f);
+                ImGui::DragFloat2("Position", &camera_position[0], 0.1f, -10.0f, 10.0f);
             }
             ImGui::End();
         }
@@ -124,6 +125,9 @@ int main()
         transform = glm::scale(transform, transform_scale);
         transform =
             glm::rotate(transform, glm::radians(transform_rotate.w), glm::vec3(transform_rotate));
+
+        glm::mat4 view =
+            glm::lookAt(camera_position, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
         texture.Bind(0);
 

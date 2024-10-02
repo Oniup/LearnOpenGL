@@ -28,8 +28,9 @@ uint32_t CreateTexture()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     int                        width, height, nrChannels;
-    constexpr std::string_view path = "Assets/WoodenCrate/textures/Crate_baseColor.png";
-    unsigned char*             data = stbi_load(path.data(), &width, &height, &nrChannels, 0);
+    constexpr std::string_view path =
+        "Assets/StylizedCrateTextures/Stylized_Crate_002_basecolor.jpg";
+    unsigned char* data = stbi_load(path.data(), &width, &height, &nrChannels, 0);
     if (data)
     {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
